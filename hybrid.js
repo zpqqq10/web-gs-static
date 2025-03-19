@@ -510,7 +510,7 @@ async function main() {
 
 
   // main work here
-  const baseUrl = params.get('url') ? params.get('url') : 'http://localhost:5500/data/';
+  const baseUrl = params.get('url') ? params.get('url') : 'https://raw.githubusercontent.com/zpqqq10/web-gs-static/refs/heads/main/data/';
 
   document.getElementById("message").innerText = 'requesting metadata...';
 
