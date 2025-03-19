@@ -31,14 +31,17 @@ for name, typestr in data.dtype.descr:
         res[name] = np.array(data[name])
         res[name] = (0.5 + SH_C0 * res[name]) * 255
         res[name] = res[name].clip(0, 255).astype(np.uint8)
+        res[name] = res[name][:100000]
         dtres[name] = '|u1'
     elif name.startswith('opacity'):
         res[name] = np.array(data[name])
         res[name] = (1 / (1 + np.exp(-res[name]))) * 255
         res[name] = res[name].clip(0, 255).astype(np.uint8)
+        res[name] = res[name][:100000]
         dtres[name] = '|u1'
     else:
         res[name] = np.array(data[name])
         dtres[name] = typestr[-2:] if len(typestr) > 2 else typestr
+        res[name] = res[name][:100000]
         
-write_ply(res, dtres, '../data/pc.ply')
+write_ply(res, dtres, '../data/pc_strip.ply')

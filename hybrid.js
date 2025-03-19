@@ -1,6 +1,6 @@
 import { vertexShaderSource, fragmentShaderSource } from "./shaders/GSSSahders.js";
 import { getProjectionMatrix, getViewMatrix, rotate4, multiply4, invert4, translate4, float16ToFloat32 } from "./src/utils/mathUtils.js";
-import { attachShaders, preventDefault, padZeroStart, FTYPES, sleep, setTexture } from "./src/utils/utils.js";
+import { attachShaders, preventDefault, padZeroStart, FTYPES, sleep, setTexture, isPly } from "./src/utils/utils.js";
 
 const ToolWorkerUrl = './src/workers/toolWorker.js';
 const PlyDownloaderUrl = './src/workers/plyDownloader.js';
@@ -33,7 +33,7 @@ let defaultViewMatrix = [
 ];
 let viewMatrix = defaultViewMatrix;
 let plyTexData = new Uint32Array();
-let cbTexData = new Uint32Array();
+let isLoading = true;
 
 async function main() {
   let carousel = false;
@@ -121,26 +121,12 @@ async function main() {
       setTexture(gl, gsTexture, texdata, texwidth, texheight, 0, '32rgbaui');
       await sleep(100);
     }
-    // if (e.data.cbtexdata) {
-    //   const { cbtexdata, texwidth, texheight } = e.data;
-    //   // save the previous ply here
-    //   cbTexData = cbtexdata;
-    //   setTexture(gl, shTexture, cbtexdata, texwidth, texheight, 8, '32rgbui');
-    //   manager.appendOneBuffer(null, null, FTYPES.cb);
-    //   await sleep(100);
-    //   // load next group
-    //   let nextIdx = manager.getNextIndex(FTYPES.cb);
-    //   if (nextIdx < 0) {
-    //     cbdownloader.postMessage({ msg: 'finish' });
-    //   } else {
-    //     cbdownloader.postMessage({ baseUrl: baseUrl, keyframe: keyframes[nextIdx] });
-    //   }
-    // }
     else if (e.data.depthIndex) {
       const { depthIndex, viewProj } = e.data;
       gl.bindBuffer(gl.ARRAY_BUFFER, indexBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, depthIndex, gl.DYNAMIC_DRAW);
       vertexCount = e.data.vertexCount;
+      isLoading = false;
     }
   };
 
@@ -158,29 +144,48 @@ async function main() {
     }
   };
 
-  // cbdownloader.onmessage = async (e) => {
-  //   if (e.data.msg && e.data.msg == 'ready') {
-  //     // do nothing
-  //   } else if (e.data.type && e.data.type == FTYPES.cb) {
-  //     const { cbjson, data, keyframe, type } = e.data;
-  //     if (keyframe == -1) {
-  //       const totalCBIndex = 2048 * keyframes.length + 1024;
-  //       // process the initial codebook
-  //       toolWorker.postMessage({ cb: data, total: totalCBIndex, groupIdx: -1, tex: cbTexData }, [data, cbTexData.buffer]);
-  //       manager.setInitCb(cbjson);
-  //       gl.uniform1f(u_extent, manager.initCb.extent);
-  //     } else {
-  //       manager.appendOneBuffer(cbjson, keyframe, type);
-  //       // to ensure in-order processing
-  //       while (!cbTexData) {
-  //         await sleep(100);
-  //       }
-  //       toolWorker.postMessage({ cb: data, total: 0, tex: cbTexData }, [data, cbTexData.buffer]);
-  //     }
-  //     // set undefined to ensure in-order processing
-  //     cbTexData = undefined;
-  //   }
-  // };
+  const showLoadingPrompt = async () => {
+    document.getElementById("message").innerText = 'loading point cloud';
+    while (true) {
+      if (vertexCount < 0) {
+        document.getElementById("message").innerText = 'ERROR! Please REFRESH!';
+        isLoading = false;
+        break;
+      }
+      if (!isLoading) {
+        document.getElementById("message").innerText = '';
+        break;
+      }
+      let msg = document.getElementById("message").innerText;
+      document.getElementById("message").innerText = msg.length > 26 ? 'loading point cloud' : msg + '.';
+      await sleep(300);
+    }
+  };
+
+  const selectFile = (file) => {
+    const fr = new FileReader();
+    fr.onload = () => {
+      const fileData = new Uint8Array(fr.result);
+      console.log("Loaded", fileData.length);
+
+      if (isPly(fileData)) {
+        // process new ply
+        isLoading = true;
+        showLoadingPrompt();
+        setTimeout(() => {
+          toolWorker.postMessage({
+            ply: fileData, tex: plyTexData
+          }, [fileData.buffer, plyTexData.buffer]);
+        }, 2000);
+      } else {
+        document.getElementById("message").innerText = 'Please drop a PLY file!';
+        setTimeout(() => {
+          document.getElementById("message").innerText = '';
+        }, 3000);
+      }
+    };
+    fr.readAsArrayBuffer(file);
+  };
 
   let activeKeys = [];
   let currentCameraIndex = 0;
@@ -497,6 +502,11 @@ async function main() {
   document.addEventListener("dragenter", preventDefault);
   document.addEventListener("dragover", preventDefault);
   document.addEventListener("dragleave", preventDefault);
+  document.addEventListener("drop", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    selectFile(e.dataTransfer.files[0]);
+  });
 
 
   // main work here
@@ -519,20 +529,7 @@ async function main() {
 
   // cbdownloader.postMessage({ baseUrl: baseUrl, keyframe: -1 });
   plyDownloader.postMessage({ baseUrl: baseUrl, loadPly: true });
-  document.getElementById("message").innerText = 'loading point cloud';
-  while (true) {
-    if (vertexCount > 0) {
-      document.getElementById("message").innerText = '';
-      break;
-    } else if(vertexCount < 0){
-      document.getElementById("message").innerText = 'ERROR! Please REFRESH!';
-      break;
-    }
-    let msg = document.getElementById("message").innerText;
-    document.getElementById("message").innerText = msg.length > 26 ? 'loading point cloud' : msg + '.';
-    await sleep(300);
-  }
-
+  showLoadingPrompt();
 
 }
 

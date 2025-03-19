@@ -171,3 +171,11 @@ export function setTexture(gl, texture, texData, texWidth, texHeight, index, cha
     // gl.activeTexture(gl.TEXTURE0);
     // gl.bindTexture(gl.TEXTURE_2D, texture);
 }
+
+// check if the file is a ply file
+export const isPly = (data) => {
+    return data[0] == 112 &&
+        data[1] == 108 &&
+        data[2] == 121 &&
+        data[3] == 10;
+}
