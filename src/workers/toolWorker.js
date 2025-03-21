@@ -38,14 +38,16 @@ function runSort(viewProj) {
 
     // This is a x-bit single-pass counting sort
     // bins here can influence sorting efficiency
-    let depthInv = (256 * 256 - 1) / (maxDepth - minDepth);
-    let counts0 = new Uint32Array(256 * 256);
+    const BUCKETS = 256 * 256;
+    // const BUCKETS = 512 * 512;
+    let depthInv = (BUCKETS - 1) / (maxDepth - minDepth);
+    let counts0 = new Uint32Array(BUCKETS);
     for (let i = 0; i < vertexCount2Date; i++) {
         sizeList[i] = ((sizeList[i] - minDepth) * depthInv) | 0;
         counts0[sizeList[i]]++;
     }
-    let starts0 = new Uint32Array(256 * 256);
-    for (let i = 1; i < 256 * 256; i++) starts0[i] = starts0[i - 1] + counts0[i - 1];
+    let starts0 = new Uint32Array(BUCKETS);
+    for (let i = 1; i < BUCKETS; i++) starts0[i] = starts0[i - 1] + counts0[i - 1];
     depthIndex = new Uint32Array(vertexCount2Date);
     for (let i = 0; i < vertexCount2Date; i++) depthIndex[starts0[sizeList[i]]++] = i;
 

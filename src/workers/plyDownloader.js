@@ -31,15 +31,15 @@ class PlyDownloader {
 
         // continue downloading
         try {
-            const drcReq = await fetch(new URL(loadPly ? 'pc.ply' : 'pc.drc', baseUrl))
+            const drcReq = await fetch(baseUrl.endsWith(".ply") || baseUrl.endsWith(".drc") ? new URL(baseUrl) : new URL(loadPly ? 'pc.ply' : 'pc.drc', baseUrl))
 
             if (drcReq.status != 200) {
                 postMessage({ err: drcReq.status + " Unable to load " + drcReq.url });
                 return;
             }
-            if (loadPly) {
-                let drc = await drcReq.arrayBuffer();
-                drc = new Uint8Array(drc);
+            let drc = await drcReq.arrayBuffer();
+            drc = new Uint8Array(drc);
+            if (baseUrl.endsWith(".ply") || loadPly) {
                 postMessage({ data: drc, type: FTYPES.ply }, [drc.buffer]);
             } else {
                 this.drcDecoder.HEAPU8.set(drc, this.inputPtr);
