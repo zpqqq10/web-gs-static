@@ -27,6 +27,8 @@ dtres = {}
 for name, typestr in data.dtype.descr:
     if name.startswith('f_rest'):
         print(f'skip {name}')
+    elif name.startswith('nx') or name.startswith('ny') or name.startswith('nz'):
+        print(f'skip {name}')
     elif name.startswith('f_dc'):
         res[name] = np.array(data[name])
         res[name] = (0.5 + SH_C0 * res[name]) * 255
