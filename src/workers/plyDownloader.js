@@ -23,35 +23,36 @@ class PlyDownloader {
     }
 
     async load(baseUrl, loadPly) {
-        if (!this.initialized) {
-            throw new Error('ply workder not initialized');
+        let cnt = 0;
+        while (!this.initialized) {
+            await sleep(300);
+            cnt++;
+            if (cnt > 100) {
+                throw new Error('ply workder not initialized');
+            }
         }
         // let startTime, endTime;
         // startTime = performance.now();
 
         // continue downloading
-        try {
-            const drcReq = await fetch(baseUrl.endsWith(".ply") || baseUrl.endsWith(".drc") ? new URL(baseUrl) : new URL(loadPly ? 'pc.ply' : 'pc.drc', baseUrl))
+        const drcReq = await fetch(baseUrl.endsWith(".ply") || baseUrl.endsWith(".drc") ? new URL(baseUrl) : new URL(loadPly ? 'pc.ply' : 'pc.drc', baseUrl))
 
-            if (drcReq.status != 200) {
-                postMessage({ err: drcReq.status + " Unable to load " + drcReq.url });
-                return;
-            }
-            let drc = await drcReq.arrayBuffer();
-            drc = new Uint8Array(drc);
-            if (baseUrl.endsWith(".ply") || loadPly) {
-                postMessage({ data: drc, type: FTYPES.ply }, [drc.buffer]);
-            } else {
-                this.drcDecoder.HEAPU8.set(drc, this.inputPtr);
-                // size of the resulting ply
-                const plySize = this.drc2plyFc(this.inputPtr, drc.length, this.outputPtr);
-                const outputArrayBuffer = this.drcDecoder.HEAPU8.slice(this.outputPtr, this.outputPtr + plySize);
-                postMessage({ data: outputArrayBuffer, keyframe: keyframe, type: FTYPES.ply }, [outputArrayBuffer.buffer]);
-            }
-        } catch (e) {
-            postMessage({ err: e + " Unable to load " + drcReq.url });
+        if (drcReq.status != 200) {
+            postMessage({ err: drcReq.status + " Unable to load " + drcReq.url });
             return;
         }
+        let drc = await drcReq.arrayBuffer();
+        drc = new Uint8Array(drc);
+        if (baseUrl.endsWith(".ply") || loadPly) {
+            postMessage({ data: drc, type: FTYPES.ply }, [drc.buffer]);
+        } else {
+            this.drcDecoder.HEAPU8.set(drc, this.inputPtr);
+            // size of the resulting ply
+            const plySize = this.drc2plyFc(this.inputPtr, drc.length, this.outputPtr);
+            const outputArrayBuffer = this.drcDecoder.HEAPU8.slice(this.outputPtr, this.outputPtr + plySize);
+            postMessage({ data: outputArrayBuffer, keyframe: keyframe, type: FTYPES.ply }, [outputArrayBuffer.buffer]);
+        }
+
         // endTime = performance.now();
 
     }

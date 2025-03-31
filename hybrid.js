@@ -144,6 +144,16 @@ async function main() {
     }
   };
 
+  toolWorker.onerror = (e) => {
+    console.error(e.toString(), 'work error');
+    throw new Error(e);
+  }
+
+  plyDownloader.onerror = (e) => {
+    console.error(e.toString(), 'downloader error');
+    throw new Error(e);
+  }
+
   const showLoadingPrompt = async () => {
     document.getElementById("message").innerText = 'loading point cloud';
     while (true) {
