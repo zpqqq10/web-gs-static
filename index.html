@@ -81,28 +81,6 @@
       right: 10px;
     }
 
-    #cornerNote {
-      position: absolute;
-      top: 10px;
-      z-index: 999;
-      right: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    #note1 {
-      font-weight: bold;
-      font-size: 20px;
-      color: #c3313d;
-    }
-
-    #note2 {
-      font-weight: bold;
-      font-size: 24px;
-      color: #c3313d;
-    }
-
     #control {
       position: absolute;
       bottom: 10px;
@@ -185,16 +163,19 @@
     }
 
     #instructions {
-      background: rgba(0,0,0,0.6);
+      background: rgba(0, 0, 0, 0.6);
       white-space: pre-wrap;
       padding: 10px;
       border-radius: 10px;
       font-size: x-small;
     }
+
     body.nohf .nohf {
       display: none;
     }
-    body.nohf #progress, body.nohf .cube-face {
+
+    body.nohf #progress,
+    body.nohf .cube-face {
       background: #ff9d0d;
     }
   </style>
@@ -212,52 +193,53 @@
   <div id="info">
     <h3 class="nohf">WebGL 3D Gaussian Splat Viewer</h3>
     <p>
-    <small class="nohf">
-      By <a href="https://github.com/zpqqq10">zpqqq10</a>, modified from <a href="https://twitter.com/antimatter15">Kevin Kwok</a>'s.
-      Code on
-      <a href="https://github.com/zpqqq10/web-gs-static">Github</a>.
-    </small>
-  </p>
+      <small class="nohf">
+        By <a href="https://github.com/zpqqq10">zpqqq10</a>, modified from <a
+          href="https://twitter.com/antimatter15">Kevin Kwok</a>'s.
+        Code on
+        <a href="https://github.com/zpqqq10/web-gs-static">Github</a>.
+      </small>
+    </p>
 
     <details>
-    <summary>Use mouse or arrow keys to navigate.</summary>
+      <summary>Use mouse or arrow keys to navigate.</summary>
 
-<div id="instructions">movement (arrow keys)
-- left/right arrow keys to strafe side to side
-- up/down arrow keys to move forward/back
-- space to jump
+      <div id="instructions">movement (arrow keys)
+        - left/right arrow keys to strafe side to side
+        - up/down arrow keys to move forward/back
+        - space to jump
 
-camera angle (wasd)
-- a/d to turn camera left/right
-- w/s to tilt camera up/down
-- q/e to roll camera counterclockwise/clockwise
-- i/k and j/l to orbit
+        camera angle (wasd)
+        - a/d to turn camera left/right
+        - w/s to tilt camera up/down
+        - q/e to roll camera counterclockwise/clockwise
+        - i/k and j/l to orbit
 
-trackpad
-- scroll up/down/left/right to orbit
-- pinch to move forward/back
-- ctrl key + scroll to move forward/back
-- shift + scroll to move up/down or strafe
+        trackpad
+        - scroll up/down/left/right to orbit
+        - pinch to move forward/back
+        - ctrl key + scroll to move forward/back
+        - shift + scroll to move up/down or strafe
 
-mouse
-- click and drag to orbit
-- right click (or ctrl/cmd key) and drag up/down to move
+        mouse
+        - click and drag to orbit
+        - right click (or ctrl/cmd key) and drag up/down to move
 
-touch (mobile)
-- one finger to orbit
-- two finger pinch to move forward/back
-- two finger rotate to rotate camera clockwise/counterclockwise
-- two finger pan to move side-to-side and up-down
+        touch (mobile)
+        - one finger to orbit
+        - two finger pinch to move forward/back
+        - two finger rotate to rotate camera clockwise/counterclockwise
+        - two finger pan to move side-to-side and up-down
 
-other
-- press '-' or '+'key to cycle loaded cameras
-- press p to resume default animation
-- ply should be named as pc.ply and specify the path with url parameter
-- drag & drop a ply file into the page
-</div>
+        other
+        - press '-' or '+'key to cycle loaded cameras
+        - press p to resume default animation
+        - ply should be named as pc.ply and specify the path with url parameter
+        - drag & drop a ply file into the page
+      </div>
 
-  </details>
-    
+    </details>
+
   </div>
 
   <div id="quality">
@@ -268,12 +250,6 @@ other
   </div>
 
   <span id="speed"></span>
-
-
-  <div id="cornerNote">
-    <span id="note1">VOLUMETRIC VIDEO WEB PLAYER</span>
-    <!-- <span id="note2">with DEGRADATION!</span> -->
-  </div>
 
   <script type="module" src="hybrid.js"></script>
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script> -->
