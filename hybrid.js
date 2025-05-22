@@ -174,19 +174,22 @@ async function main() {
 
   const selectFile = (file) => {
     const fr = new FileReader();
+    fr.onloadstart = () => {
+      isLoading = true;
+      showLoadingPrompt();
+    }
     fr.onload = () => {
       const fileData = new Uint8Array(fr.result);
       console.log("Loaded", fileData.length);
 
       if (isPly(fileData)) {
         // process new ply
-        isLoading = true;
-        showLoadingPrompt();
+        isLoading = false;
         setTimeout(() => {
           toolWorker.postMessage({
             ply: fileData, tex: plyTexData
           }, [fileData.buffer, plyTexData.buffer]);
-        }, 2000);
+        }, 1000);
       } else {
         document.getElementById("message").innerText = 'Please drop a PLY file!';
         setTimeout(() => {

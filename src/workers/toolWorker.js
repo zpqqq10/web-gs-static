@@ -154,16 +154,26 @@ function processPlyBuffer(inputBuffer, texdata) {
         texdata_c[4 * (8 * j + 3) + 3] = types['opacity'] == "getUint8" ? attrs.opacity : (1 / (1 + Math.exp(-attrs.opacity))) * 255;
 
         // quaternions
+        const qlen = Math.sqrt(
+            attrs.rot_0 ** 2 +
+            attrs.rot_1 ** 2 +
+            attrs.rot_2 ** 2 +
+            attrs.rot_3 ** 2,
+        );
         let scale = [
             Math.exp(attrs.scale_0),
             Math.exp(attrs.scale_1),
             Math.exp(attrs.scale_2),
         ];
         let rot = [
-            attrs.rot_0,
-            attrs.rot_1,
-            attrs.rot_2,
-            attrs.rot_3,
+            // attrs.rot_0,
+            // attrs.rot_1,
+            // attrs.rot_2,
+            // attrs.rot_3,
+            attrs.rot_0 / qlen,
+            attrs.rot_1 / qlen,
+            attrs.rot_2 / qlen,
+            attrs.rot_3 / qlen,
         ];
 
         // Compute the matrix product of S and R (M = S * R)
